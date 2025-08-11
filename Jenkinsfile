@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools {
         maven 'maven3.9'
-        java 'jdk17'
+        jdk 'jdk17'
     }
     environment {
         DockerHubID = 'amaldeep98'
