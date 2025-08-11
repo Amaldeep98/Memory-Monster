@@ -1,0 +1,89 @@
+---
+# Source: memory-monster/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: memory-monster-service
+spec:
+  type: ClusterIP
+  selector:
+    app: memory-monster
+  ports:
+  - port: 80
+    targetPort: 8088
+---
+# Source: memory-monster/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-monster-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memory-monster
+  template:
+    metadata:
+      labels:
+        app: memory-monster
+    spec:
+      containers:
+      - name: memory-monster-container
+        image: amaldeep98/memory-monster:v4
+        ports:
+        - containerPort: 8088
+        resources:
+          limits:
+            cpu: 500m
+            memory: 700Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+---
+# Source: memory-monster/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: memory-monster-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: memory-monster-deployment
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# Source: memory-monster/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: memory-monster-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: memory-monster-service
+            port:
+              number: 80

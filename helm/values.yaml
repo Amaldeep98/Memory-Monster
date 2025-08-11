@@ -1,0 +1,32 @@
+app:
+  name: memory-monster
+  replicas: 1
+  image: amaldeep98/memory-monster
+  tag: v4
+
+hpa:
+  enabled: true
+  cpuUtilization: 80
+  memoryUtilization: 80
+  minReplicas: 1
+  maxReplicas: 5
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8088
+  NodePort: 30001
+
+ingress:
+  enabled: enabled
+  host: example.com
+  path: /
+  classname: nginx
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "700Mi"

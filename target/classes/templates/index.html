@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memory Eater</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --secondary: #ff006e;
+            --accent: #8b5cf6;
+            --dark: #0a0a0f;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(ellipse at top, #1a1a2e 0%, #0a0a0f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="%2300d4ff" opacity="0.3"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle><circle cx="80" cy="30" r="1" fill="%23ff006e" opacity="0.4"><animate attributeName="opacity" values="0.4;1;0.4" dur="4s" repeatCount="indefinite"/></circle><circle cx="60" cy="70" r="1" fill="%238b5cf6" opacity="0.2"><animate attributeName="opacity" values="0.2;1;0.2" dur="5s" repeatCount="indefinite"/></circle></svg>') repeat;
+            animation: float 20s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-10px) translateX(5px); }
+            50% { transform: translateY(-20px) translateX(-5px); }
+            75% { transform: translateY(-10px) translateX(10px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+
+        .container {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--primary), transparent, var(--secondary), transparent);
+            animation: rotate 10s linear infinite;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        h2 {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            text-shadow: var(--glow);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+            font-size: 1rem;
+            margin-bottom: 32px;
+            letter-spacing: 0.05em;
+        }
+
+        .memory-info {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            font-size: 1.3rem;
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 4px 16px rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .memory-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+        }
+
+        .memory-value {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.5em;
+        }
+
+        input[type="number"] {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            padding: 16px 20px;
+            width: 100%;
+            margin-bottom: 24px;
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input[type="number"]::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 
+                0 0 0 4px rgba(0, 212, 255, 0.1),
+                0 4px 20px rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 
+                0 4px 16px rgba(0, 212, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 12px 32px rgba(0, 212, 255, 0.4),
+                0 0 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .btn.clear {
+            background: linear-gradient(135deg, var(--secondary) 0%, #ff4081 100%);
+            box-shadow: 
+                0 4px 16px rgba(255, 0, 110, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn.clear:hover {
+            box-shadow: 
+                0 12px 32px rgba(255, 0, 110, 0.4),
+                0 0 40px rgba(255, 0, 110, 0.2);
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        /* Pulse animation for memory info */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .memory-info.active {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px;
+                padding: 32px 24px;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .memory-info {
+                font-size: 1.1rem;
+                padding: 20px;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Memory Eater</h2>
+        <p class="subtitle">Advanced Memory Management System</p>
+        
+        <div class="memory-info">
+            Allocated Memory: <span class="memory-value" th:text="${allocated}">0</span> MB
+        </div>
+        
+        <div class="actions">
+            <form method="post" action="/eat">
+                <div class="form-group">
+                    <input type="number" name="mb" min="1" placeholder="Enter MB to allocate" required>
+                    <button class="btn" type="submit">
+                        <span>Consume Memory</span>
+                    </button>
+                </div>
+            </form>
+            
+            <form method="post" action="/clear">
+                <button class="btn clear" type="submit">
+                    <span>Purge Memory</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const memoryInfo = document.querySelector('.memory-info');
+            const buttons = document.querySelectorAll('.btn');
+            
+            // Add hover effects to memory info
+            memoryInfo.addEventListener('mouseenter', function() {
+                this.classList.add('active');
+            });
+            
+            memoryInfo.addEventListener('mouseleave', function() {
+                this.classList.remove('active');
+            });
+            
+            // Add click ripple effect
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('div');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+        });
+        
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

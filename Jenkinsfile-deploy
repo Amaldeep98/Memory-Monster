@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+    environment {
+        ImageName = 'memory-monster'
+    }
+    parameters {
+        string(name: 'BUILD_NUMBER_ID', description: 'Build number from Build Job')
+    }
+    stages {
+        stage('pull-chart and install') {
+            steps {
+                withCredentials([string(credentialsId: 'aws-public-alias', variable: 'AWS_ALIAS')]) {
+                    sh 'helm upgrade --install $ImageName oci://public.ecr.aws/$AWS_ALIAS/$ImageName --version $BUILD_NUMBER_ID --namespace default --wait'
+                }
+            }
+        }
+
+    }
+}
