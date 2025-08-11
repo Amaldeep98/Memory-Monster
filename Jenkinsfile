@@ -68,10 +68,12 @@ pipeline {
         stage('helm-push') {
             steps {
                 withCredentials([string(credentialsId: 'aws-public-alias', variable: 'AWS_ALIAS')]) {
-                    set -e
-                    sh 'helm package ./helm'
-                    sh 'helm push ./$HelmRepoName-*.tgz oci://public.ecr.aws/$AWS_ALIAS'
-                    sh 'rm -rf *.tgz'
+                    sh  '''
+                        set -e
+                        helm package ./helm
+                        helm push ./$HelmRepoName-*.tgz oci://public.ecr.aws/$AWS_ALIAS
+                        rm -rf *.tgz
+                    '''
                 }
                 
             }
