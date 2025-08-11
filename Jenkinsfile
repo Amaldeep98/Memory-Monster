@@ -61,8 +61,13 @@ pipeline {
         }
         stage ('helm-repo-create') {
             steps {
-                sh 'aws ecr-public describe-repositories --repository-names $HelmRepoName --region us-east-1 > /dev/null 2>&1 \
-                    || aws ecr-public create-repository --repository-name $HelmRepoName --region us-east-1'
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+                  credentialsId: 'aws-creds']]) {
+                    sh '''
+                        aws ecr-public describe-repositories --repository-names $HelmRepoName --region us-east-1 > /dev/null 2>&1 \
+                        || aws ecr-public create-repository --repository-name $HelmRepoName --region us-east-1
+                    '''
+                }
             }
         }
         stage('helm-push') {
