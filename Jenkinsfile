@@ -75,7 +75,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'aws-public-alias', variable: 'AWS_ALIAS')]) {
                     sh  '''
                         helm package ./helm
-                        helm push $HelmRepoName-*.tgz oci://public.ecr.aws/p9h4b6q6
+                        helm push $HelmRepoName-*.tgz oci://public.ecr.aws/p9h4b6q6/memory-monster
                         
                     '''
                 }
