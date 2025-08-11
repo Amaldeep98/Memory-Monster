@@ -74,7 +74,6 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'aws-public-alias', variable: 'AWS_ALIAS')]) {
                     sh  '''
-                        set -e
                         helm package ./helm
                         helm push ./$HelmRepoName-*.tgz oci://public.ecr.aws/$AWS_ALIAS
                         
