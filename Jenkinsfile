@@ -77,7 +77,7 @@ pipeline {
                         set -e
                         helm package ./helm
                         helm push ./$HelmRepoName-*.tgz oci://public.ecr.aws/$AWS_ALIAS
-                        rm -rf *.tgz
+                        
                     '''
                 }
                 
@@ -95,6 +95,7 @@ pipeline {
     post {
         always {
             sh 'docker logout'
+            sh 'rm -rf *.tgz'
         }
 
     }
