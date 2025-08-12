@@ -1,19 +1,49 @@
 pipeline {
     agent any
     environment {
-        ImageName = 'memory-monster'
+        AWS_PUBLIC_ALIAS = credentials('aws-public-alias')
     }
     parameters {
         string(name: 'BUILD_NUMBER_ID', description: 'Build number from Build Job')
+        string(name: 'REGION', description: 'AWS region')
+        string(name: 'HELM_CHART_NAME', description: 'Name of the chart')
     }
     stages {
-        stage('pull-chart and install') {
+        stage ('Deploy Helm Chart') {
             steps {
-                withCredentials([string(credentialsId: 'aws-public-alias', variable: 'AWS_ALIAS')]) {
-                    sh 'helm upgrade --install $ImageName oci://public.ecr.aws/$AWS_ALIAS/$ImageName --version $BUILD_NUMBER_ID --namespace default --wait'
+                withCredentials([
+                    file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE'),
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']
+                ]) {
+                    withEnv([
+                        "KUBECONFIG=${env.KUBECONFIG_FILE}",
+                        "BUILD_NUMBER_ID=${params.BUILD_NUMBER_ID}",
+                        "REGION=${params.REGION}",
+                        "HELM_CHART_NAME=${params.HELM_CHART_NAME}",
+                        "AWS_PUBLIC_ALIAS=${AWS_PUBLIC_ALIAS}"
+                    ]) {
+                        sh '''
+                            echo $BUILD_NUMBER_ID
+                            
+                            echo $REGION
+                            
+                            echo $HELM_CHART_NAME
+                            
+                            
+                            
+                            echo "Logging into AWS ECR Public"
+                            aws ecr-public get-login-password --region $REGION \
+                                | helm registry login --username AWS --password-stdin public.ecr.aws
+                                
+                            echo "Deploying Helm chart"
+                            helm upgrade --install $HELM_CHART_NAME \
+                                oci://public.ecr.aws/$AWS_PUBLIC_ALIAS/$HELM_CHART_NAME \
+                                --version $BUILD_NUMBER_ID --wait
+                        '''
+                        
+                    }
                 }
             }
         }
-
     }
 }

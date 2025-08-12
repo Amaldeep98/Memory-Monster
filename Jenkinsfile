@@ -5,9 +5,10 @@ pipeline {
         jdk 'jdk17'
     }
     environment {
-        DockerHubID = 'amaldeep98'
-        ImageName = 'memory-monster'
-        HelmRepoName = 'memory-monster'
+        DOCKER_HUB_ID = 'amaldeep98'
+        IMAGE_NAME= 'memory-monster'
+        HELM_CHART_NAME = 'memory-monster'
+        REGION = 'us-east-1'
     }
     stages {
         stage('Git-checkout') {
@@ -35,28 +36,24 @@ pipeline {
         }
         stage('docker-build') {
             steps {
-                sh 'docker build -t $DockerHubID/$ImageName:latest .'
-                sh 'docker tag $DockerHubID/$ImageName:latest $DockerHubID/$ImageName:$BUILD_NUMBER'
+                sh 'docker build -t $DOCKER_HUB_ID/$IMAGE_NAME:latest .'
+                sh 'docker tag $DOCKER_HUB_ID/$IMAGE_NAME:latest $DOCKER_HUB_ID/$IMAGE_NAME:$BUILD_NUMBER'
             }
         }
         stage('docker-push and cleanup') {
             steps {
-                sh 'docker push $DockerHubID/$ImageName:latest'
-                sh 'docker push $DockerHubID/$ImageName:$BUILD_NUMBER'
-                sh 'docker rmi $DockerHubID/$ImageName:latest'
-                sh 'docker rmi $DockerHubID/$ImageName:$BUILD_NUMBER' 
+                sh 'docker push $DOCKER_HUB_ID/$IMAGE_NAME:latest'
+                sh 'docker push $DOCKER_HUB_ID/$IMAGE_NAME:$BUILD_NUMBER'
+                sh 'docker rmi $DOCKER_HUB_ID/$IMAGE_NAME:latest'
+                sh 'docker rmi $DOCKER_HUB_ID/$IMAGE_NAME:$BUILD_NUMBER' 
             }
         }
         stage('helm-tag-update') {
             steps {
+                sh 'rm -rf *.tgz'
+                sh 'helm package ./helm'
                 sh "sed -i 's/tag: .*/tag: $BUILD_NUMBER/' ./helm/values.yaml"
                 sh "sed -i 's/version: .*/version: $BUILD_NUMBER/' ./helm/Chart.yaml"
-            }
-        }
-        stage ('ecr-login') {
-            steps {
-                sh 'aws ecr-public get-login-password --region us-east-1 \
-                    | helm registry login --username AWS --password-stdin public.ecr.aws'
             }
         }
         stage ('helm-repo-create') {
@@ -64,28 +61,38 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
                   credentialsId: 'aws-creds']]) {
                     sh '''
-                        aws ecr-public describe-repositories --repository-names $HelmRepoName --region us-east-1 > /dev/null 2>&1 \
-                        || aws ecr-public create-repository --repository-name $HelmRepoName --region us-east-1
+                        aws ecr-public get-login-password --region $REGION \
+                        | helm registry login --username AWS --password-stdin public.ecr.aws
+                        
+                        
+                        aws ecr-public describe-repositories \
+                        --repository-names $HELM_CHART_NAME \
+                        --region $REGION > /dev/null 2>&1 \
+                        || aws ecr-public create-repository \
+                        --repository-name $HELM_CHART_NAME \
+                        --region $REGION             
                     '''
                 }
             }
         }
         stage('helm-push') {
             steps {
-                withCredentials([string(credentialsId: 'aws-public-alias', variable: 'AWS_ALIAS')]) {
+                withCredentials([string(credentialsId: 'aws-public-alias', variable: 'AWS_PUBLIC_ALIAS')]) {
                     sh  '''
+                        rm -rf *.tgz
                         helm package ./helm
-                        helm push $HelmRepoName-*.tgz oci://public.ecr.aws/p9h4b6q6/memory-monster
+                        helm push $HELM_CHART_NAME-*.tgz oci://public.ecr.aws/$AWS_PUBLIC_ALIAS
                         
                     '''
                 }
-                
             }
         }
         stage('Trigger Deploy Job') {
             steps {
                 build job: 'Memory-monster-deploy', parameters: [
-                    string(name: 'BUILD_NUMBER_ID', value: "${env.BUILD_NUMBER}")
+                    string(name: 'BUILD_NUMBER_ID', value: "${env.BUILD_NUMBER}"),
+                    string(name: 'REGION', value: "${env.REGION}"),
+                    string(name: 'HELM_CHART_NAME', value: "${env.HELM_CHART_NAME}")
                 ]
             }
         }
