@@ -82,7 +82,7 @@ pipeline {
                     sh  '''
                         rm -rf *.tgz
                         helm package ./helm
-                        helm push $HELM_CHART_NAME-{BUILD_NUMBER}.tgz oci://public.ecr.aws/$AWS_PUBLIC_ALIAS
+                        helm push $HELM_CHART_NAME-$BUILD_NUMBER.tgz oci://public.ecr.aws/$AWS_PUBLIC_ALIAS
                         
                     '''
                 }
