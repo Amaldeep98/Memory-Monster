@@ -17,4 +17,4 @@ This is a simple Spring Boot web application that allows you to allocate memory 
 ## Usage
 
 - Enter the amount of memory (in MB) you want to allocate and click "Eat Memory".
-- Click "Clear Memory" to release all allocated memory.
+- Click "Clear Memory" to release all allocated memory .
