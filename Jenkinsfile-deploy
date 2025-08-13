@@ -36,7 +36,7 @@ pipeline {
                                 | helm registry login --username AWS --password-stdin public.ecr.aws
                                 
                             echo "Deploying Helm chart"
-                            helm upgrade --install $HELM_CHART_NAME-$BUILD_NUMBER_ID \
+                            helm upgrade --install $HELM_CHART_NAME \
                                 oci://public.ecr.aws/$AWS_PUBLIC_ALIAS/$HELM_CHART_NAME \
                                 --version $BUILD_NUMBER_ID --wait
                         '''
