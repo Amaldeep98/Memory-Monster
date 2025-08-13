@@ -12,7 +12,7 @@ This is a simple Spring Boot web application that allows you to allocate memory 
 
 1. Make sure you have Java 17+ and maven installed.
 2. Run `./gradlew bootRun` in the project directory.
-3. Open your browser and go to `http://localhost:8088`.
+3. Open your browser and go to `http://localhost:8088.
 
 ## Usage
 
