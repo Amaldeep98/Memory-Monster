@@ -50,7 +50,6 @@ pipeline {
         }
         stage('helm-tag-update') {
             steps {
-                sh 'rm -rf *.tgz'
                 sh "sed -i 's/tag: .*/tag: $BUILD_NUMBER/' ./helm/values.yaml"
                 sh "sed -i 's/version: .*/version: $BUILD_NUMBER/' ./helm/Chart.yaml"
                 sh 'cat ./helm/Chart.yaml'
@@ -83,7 +82,7 @@ pipeline {
                     sh  '''
                         rm -rf *.tgz
                         helm package ./helm
-                        helm push $HELM_CHART_NAME-*.tgz oci://public.ecr.aws/$AWS_PUBLIC_ALIAS
+                        helm push $HELM_CHART_NAME-{BUILD_NUMBER}.tgz oci://public.ecr.aws/$AWS_PUBLIC_ALIAS
                         
                     '''
                 }
