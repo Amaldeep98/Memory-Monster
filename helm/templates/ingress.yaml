@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: {{ .Values.app.name}}-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 
 spec:
   ingressClassName: {{ .Values.ingress.classname }}
@@ -11,8 +11,8 @@ spec:
   - host: {{ .Values.ingress.host }}
     http:
       paths:
-      - path: /
-        pathType: Prefix
+      - path: {{ .Values.ingress.path }}
+        pathType: {{ .Values.ingress.pathType }}
         backend:
           service:
             name: {{ .Values.app.name}}-service

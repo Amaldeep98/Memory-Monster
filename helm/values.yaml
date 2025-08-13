@@ -20,9 +20,10 @@ service:
 ingress:
   enabled: enabled
   host: example.com
-  path: /
+  path: /app(/|$)(.*)
+  pathType: ImplementationSpecific
   classname: nginx
-
+  
 resources:
   requests:
     cpu: "100m"

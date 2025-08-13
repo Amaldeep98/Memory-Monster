@@ -13,20 +13,20 @@ import java.util.List;
 public class MemoryController {
     private List<byte[]> memoryChunks = new ArrayList<>();
 
-    @GetMapping("/")
+    @GetMapping({ "/", "/app", "/app/" })
     public String index(Model model) {
         model.addAttribute("allocated", getAllocatedMemoryMB());
         return "index";
     }
 
-    @PostMapping("/eat")
+    @PostMapping({ "/eat", "/app/eat" })
     public String eatMemory(@RequestParam("mb") int mb, Model model) {
         memoryChunks.add(new byte[mb * 1024 * 1024]);
         model.addAttribute("allocated", getAllocatedMemoryMB());
         return "index";
     }
 
-    @PostMapping("/clear")
+    @PostMapping({ "/clear", "/app/clear" })
     public String clearMemory(Model model) {
         memoryChunks.clear();
         System.gc();
