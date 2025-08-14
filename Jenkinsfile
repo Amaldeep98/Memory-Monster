@@ -52,9 +52,6 @@ pipeline {
             steps {
                 sh "sed -i 's/tag: .*/tag: $BUILD_NUMBER/' ./helm/values.yaml"
                 sh "sed -i 's/version: .*/version: $BUILD_NUMBER/' ./helm/Chart.yaml"
-                sh 'cat ./helm/Chart.yaml'
-                sh 'echo "values.yaml"'
-                sh 'cat ./helm/values.yaml'
             }
         }
         stage ('helm-repo-create') {
