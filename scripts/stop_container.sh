@@ -1,16 +1,16 @@
 #!/bin/bash
 set -e
 
-IMAGE_NAME=amaldeep98/memory-monster:latest
+PORT=8088
 
-# Find running containers from this image
-CONTAINERS=$(docker ps -q --filter ancestor=$IMAGE_NAME)
+# Find container using the port
+CONTAINER_ID=$(docker ps -q --filter "publish=$PORT")
 
-if [ -n "$CONTAINERS" ]; then
-    echo "Stopping containers running image $IMAGE_NAME..."
-    docker stop $CONTAINERS
-    echo "Removing containers..."
-    docker rm $CONTAINERS
+if [ -n "$CONTAINER_ID" ]; then
+    echo "Stopping container(s) using port $PORT..."
+    docker stop $CONTAINER_ID
+    echo "Removing container(s)..."
+    docker rm $CONTAINER_ID
 else
-    echo "No running containers found for image $IMAGE_NAME."
+    echo "No container is using port $PORT."
 fi
