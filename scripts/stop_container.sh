@@ -1,13 +1,10 @@
 #!/bin/bash
-set -e
+set +e  # disable exit on error for this script
 
 CONTAINER_NAME=memory-monster
 
-# Get container ID (running or stopped)
-CONTAINER_ID=$(docker ps -aq -f name=^${CONTAINER_NAME}$)
-
-# Trim whitespace
-CONTAINER_ID=$(echo $CONTAINER_ID | xargs)
+# Check if container exists (running or stopped)
+CONTAINER_ID=$(docker ps -aq -f name=^${CONTAINER_NAME}$ | tr -d '[:space:]')
 
 if [ -n "$CONTAINER_ID" ]; then
     echo "Stopping container $CONTAINER_NAME..."
@@ -17,3 +14,5 @@ if [ -n "$CONTAINER_ID" ]; then
 else
     echo "No container named $CONTAINER_NAME found. Nothing to stop."
 fi
+
+exit 0  # ensure script exits successfully
