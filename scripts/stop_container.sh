@@ -1,18 +1,12 @@
 #!/bin/bash
-set +e  # disable exit on error for this script
+set -e
 
-CONTAINER_NAME=memory-monster
+# Find any running container (by name or all containers).
+containerid=$(docker ps -q -f "name=my_app")  
 
-# Check if container exists (running or stopped)
-CONTAINER_ID=$(docker ps -aq -f name=^${CONTAINER_NAME}$ | tr -d '[:space:]')
-
-if [ -n "$CONTAINER_ID" ]; then
-    echo "Stopping container $CONTAINER_NAME..."
-    docker stop "$CONTAINER_ID"
-    echo "Removing container $CONTAINER_NAME..."
-    docker rm "$CONTAINER_ID"
+if [ -n "$containerid" ]; then
+    echo "Stopping and removing container $containerid"
+    docker rm -f "$containerid"
 else
-    echo "No container named $CONTAINER_NAME found. Nothing to stop."
+    echo "No existing container to stop."
 fi
-
-exit 0  # ensure script exits successfully
