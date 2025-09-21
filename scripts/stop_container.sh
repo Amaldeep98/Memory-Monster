@@ -1,7 +1,16 @@
 #!/bin/bash
 set -e
 
-# Pull the Docker image from Docker Hub
-echo hello
+IMAGE_NAME=amaldeep98/memory-monster:latest
 
-# Run the Docker image as a container
+# Find running containers from this image
+CONTAINERS=$(docker ps -q --filter ancestor=$IMAGE_NAME)
+
+if [ -n "$CONTAINERS" ]; then
+    echo "Stopping containers running image $IMAGE_NAME..."
+    docker stop $CONTAINERS
+    echo "Removing containers..."
+    docker rm $CONTAINERS
+else
+    echo "No running containers found for image $IMAGE_NAME."
+fi
