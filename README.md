@@ -8,7 +8,7 @@ This is a simple Spring Boot web application that allows you to allocate memory 
 - View currently allocated memory.
 - Clear all allocated memory with a button..
 
-## How to Run
+## How to Run.
 
 1. Make sure you have Java 17+ and maven installed.
 2. Run `./gradlew bootRun` in the project directory.
