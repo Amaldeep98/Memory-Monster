@@ -4,7 +4,7 @@ This is a simple Spring Boot web application that allows you to allocate memory 
 
 ## Features
 
-- Allocate memory by specifying the amount in MB.
+- Allocate memory by specifying the amount in MB. 
 - View currently allocated memory.
 - Clear all allocated memory with a button.
 
