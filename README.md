@@ -1,6 +1,6 @@
 # Memory Eater Spring Boot Application
 
-This is a simple Spring Boot web application that allows you to allocate memory (in MB) and clear it using a web interface.
+This is a simple Spring Boot web application that allows you to allocate memory (in MB) and clear it using a web interface..
 
 ## Features
 
